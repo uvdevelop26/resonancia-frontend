@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000', // URL de tu backend
+        target: 'resonancia-backend.railway.internal', // URL de tu backend
         changeOrigin: true,
         secure: false,
       }

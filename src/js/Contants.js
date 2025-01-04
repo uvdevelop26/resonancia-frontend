@@ -1,5 +1,5 @@
 const Constants = {
-    serverPath: `http://localhost:3000`
+    serverPath: `resonancia-backend.railway.internal`
 }
 
 export { Constants }
