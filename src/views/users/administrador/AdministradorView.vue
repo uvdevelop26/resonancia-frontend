@@ -116,6 +116,7 @@ onMounted(fetchUsers);
             v-model="search"
             :data="administradoresSearch"
             :criteria="['nombre', 'apellido', 'dni']"
+            top="full-1"
             @action="action"
             background="bg-white"
             maxWidth="3xl"

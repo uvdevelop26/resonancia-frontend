@@ -10,7 +10,6 @@ import { Constants } from "@/js/Contants";
 import { onMounted, ref, watchEffect } from "vue";
 import FlashMessage from "@/components/FlashMessage.vue";
 import axios from "axios";
-import gsap from "gsap";
 
 //rutas
 const route = useRoute();
@@ -126,6 +125,7 @@ onMounted(fetchData);
             v-model="search"
             :data="examenesSearch"
             :criteria="['nombre', 'apellido', 'dni']"
+            top="full-1"
             @action="action"
             background="bg-white"
             maxWidth="3xl"
