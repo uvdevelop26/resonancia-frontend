@@ -41,7 +41,7 @@ const Utilities = {
     },
 
     getFormattedDate: (date) => {
-        const formattedDate = moment(date).format("YYYY-MM-DD");
+        const formattedDate = moment(date).format("DD-MM-YYYY");
         return formattedDate;
     },
 

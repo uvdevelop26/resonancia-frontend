@@ -10,7 +10,6 @@ import { Constants } from "@/js/Contants";
 import { onMounted, ref, watchEffect } from "vue";
 import FlashMessage from "@/components/FlashMessage.vue";
 import axios from "axios";
-import gsap from "gsap";
 
 //rutas
 const route = useRoute();
