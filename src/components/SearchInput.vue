@@ -19,6 +19,10 @@ const props = defineProps({
     type: String,
     default: "bg-gray-100",
   },
+  top: {
+    type: String,
+    default: "full-2",
+  },
 });
 
 const filteredData = ref([]);
@@ -67,6 +71,15 @@ const maxWidthClass = computed(() => {
   }[props.maxWidth];
 });
 
+const topList = computed(() => {
+  return {
+    full: "top-full",
+    "full-1": "top-[2.655rem]",
+    "full-2": "top-[4.655rem]",
+  }[props.top];
+});
+
+
 const emit = defineEmits(["update:modelValue", "action"]);
 </script>
 <template>
@@ -94,7 +107,8 @@ const emit = defineEmits(["update:modelValue", "action"]);
     <!-- list -->
     <ul
       v-if="filteredData.length > 0 && showOnList"
-      class="absolute z-50 w-full py-2 border-2 bg-white shadow top-[4.655rem] max-h-52 overflow-y-auto cursor-pointer">
+      class="absolute z-50 w-full py-2 border-2 bg-white shadow max-h-52 overflow-y-auto cursor-pointer"
+      :class="topList">
       <li
         v-for="data in filteredData"
         :key="data.id"

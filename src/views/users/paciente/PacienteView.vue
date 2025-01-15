@@ -119,6 +119,7 @@ onMounted(fetchUsers);
             @action="action"
             background="bg-white"
             maxWidth="3xl"
+            top="full-1"
           />
           <router-link
             to="/users/paciente/create"

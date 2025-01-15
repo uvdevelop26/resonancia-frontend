@@ -117,6 +117,7 @@ onMounted(fetchUsers);
             :data="administradoresSearch"
             :criteria="['nombre', 'apellido', 'dni']"
             @action="action"
+            top="full-1"
             background="bg-white"
             maxWidth="3xl"
           />
