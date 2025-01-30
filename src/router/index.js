@@ -112,11 +112,11 @@ router.beforeEach(async (to, from, next) => {
       if (response.status === 200) {
         next();
       } else {
-        next({ name: 'login' }); 
+        next({ name: 'login' });
       }
     } catch (error) {
       console.error("Error de autenticación:", error);
-      next({ name: 'login' }); 
+      next({ name: 'login' });
     }
   } else {
     next();
