@@ -12,10 +12,22 @@ const pacientes = ref(null);
 const lastPaciente = ref({});
 const examenes = ref(null);
 const lastExamenes = ref([]);
+const user = ref({});
 
 const fetchData = async () => {
   try {
     const response = await axios.get(`${Constants.serverPath}/api/dashboard`);
+
+    const userInfo = await axios.get(
+      `${Constants.serverPath}/api/auth/userinfo`,
+      {
+        withCredentials: true, // Para enviar cookies al backend
+      }
+    );
+
+    if (userInfo.data.user) {
+      user.value = userInfo.data.user;
+    }
 
     pacientes.value = response.data.pacienteUsers;
     lastPaciente.value = response.data.lastPaciente;
@@ -61,7 +73,9 @@ onMounted(fetchData);
           </h3>
         </div>
         <!-- examenes -->
-        <div class="p-4 border rounded-lg bg-white shadow relative w-full max-w-xl">
+        <div
+          class="p-4 border rounded-lg bg-white shadow relative w-full max-w-xl"
+          v-if="user && user.rol === 'administrador'">
           <!-- Datos -->
           <div class="flex items-center justify-between">
             <div class="md:flex md:items-center md:gap-2">
@@ -70,8 +84,10 @@ onMounted(fetchData);
               </h2>
               <div class="md:flex md:items-center md:gap-2">
                 <span class="font-semibold text-4xl mt-1">{{ examenes }}</span>
-                <h3 class="text-xs mt-1 text-gray-400 italic font-semibold">Últimos exámenes realizados:</h3>
-             </div>
+                <h3 class="text-xs mt-1 text-gray-400 italic font-semibold">
+                  Últimos exámenes realizados:
+                </h3>
+              </div>
             </div>
             <router-link
               class="flex flex-col items-center group"
@@ -84,9 +100,9 @@ onMounted(fetchData);
             </router-link>
           </div>
           <!-- últimos -->
-          <div
-            class="w-full overflow-x-auto rounded-lg bg-white mt-2">
-            <table class="w-full text-sm whitespace-nowrap overflow-hidden border">
+          <div class="w-full overflow-x-auto rounded-lg bg-white mt-2">
+            <table
+              class="w-full text-sm whitespace-nowrap overflow-hidden border">
               <thead>
                 <tr class="shadow text-sm border-b-2">
                   <th
@@ -105,7 +121,8 @@ onMounted(fetchData);
                     Fecha
                   </th>
                   <th
-                    class="py-1 px-4 text-gray-500 text-xs md:text-sm font-bold"></th>
+                    class="py-1 px-4 text-gray-500 text-xs md:text-sm font-bold"
+                  ></th>
                 </tr>
               </thead>
               <tbody>

@@ -10,6 +10,7 @@ import { onMounted, ref, watchEffect } from "vue";
 import axios from "axios";
 import FileInput from "@/components/FileInput.vue";
 import ImageViewer from "@/components/ImageViewer.vue";
+import LoadingButton from "@/components/LoadingButton.vue";
 
 // search data
 const pacientes = ref([]);
@@ -28,6 +29,8 @@ const form = ref({
   user_id: "",
   url: [],
 });
+
+const resultadosPrediccion = ref([]);
 
 //funciones
 const close = () => {
@@ -82,6 +85,82 @@ const fileHandler = (event) => {
   }
 
   form.value.url = filesArrayTmp;
+};
+
+const classLabels = {
+  1: "Glioma",
+  2: "Meningioma",
+  3: "No tumor",
+  4: "Pituitary",
+};
+
+const typeText = async (text, delay = 50) => {
+  form.value.resultado = "";
+  for (let i = 0; i < text.length; i++) {
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    form.value.resultado += text[i];
+  }
+};
+
+const generatePrediction = async () => {
+  const imagenes = form.value.url;
+
+  if (imagenes.length === 0) {
+    console.error("No has añadido imágenes para analizar");
+    return;
+  }
+
+  resultadosPrediccion.value = await Promise.all(
+    imagenes.map(async (imagen) => {
+      const formData = new FormData();
+      formData.append("file", imagen);
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:5000/predict",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } },
+          { withCredentials: true }
+        );
+
+        // Extraer las probabilidades del JSON
+        const predictionArray = response.data.prediction[0]; // Tomar el primer array
+
+        if (!Array.isArray(predictionArray)) {
+          console.error("Formato inesperado en la predicción:", response.data);
+          return { imagen: imagen.name, resultado: "Error en la predicción" };
+        }
+
+        // Encontrar el índice con el valor más alto (como en test.py)
+        const classIndex = predictionArray.indexOf(
+          Math.max(...predictionArray)
+        );
+
+        // Convertir el índice en el nombre de la clase
+        const resultado = classLabels[classIndex + 1] || "No encontrado"; // +1 porque tus clases empiezan en 1
+
+        return { imagen: imagen.name, resultado };
+      } catch (error) {
+        console.error(`Error en la predicción de ${imagen.name}:`, error);
+        return { imagen: imagen.name, resultado: "Error en la predicción" };
+      }
+    })
+  );
+
+  if (resultadosPrediccion.value) {
+    let finalText = "";
+
+    resultadosPrediccion.value.forEach((result, index) => {
+      const description = Utilities.getClaseDescription(result.resultado);
+
+      finalText += `La imagen ${index + 1}: ${
+        result.imagen
+      } ha arrojado el resultado: ${result.resultado}. ${description}\n`;
+
+    });
+
+    typeText(finalText, 50);
+  }
 };
 
 const handleRemoveImage = (index) => {
@@ -165,7 +244,8 @@ onMounted(fetchData);
         <div class="w-full rounded-lg bg-white shadow-md p-4 lg:p-6 mt-4">
           <form @submit.prevent="store" class="flex flex-col gap-4">
             <div
-              class="flex flex-col gap-4 w-full items-center md:flex-row md:items-start md:flex-wrap">
+              class="flex flex-col gap-4 w-full items-center md:flex-row md:items-start md:flex-wrap"
+            >
               <TextInput
                 label="Fecha"
                 type="date"
@@ -207,17 +287,24 @@ onMounted(fetchData);
               <TextArea
                 label="Resultados"
                 id="resultado"
+                disabled
                 maxWidth="sm"
                 v-model="form.resultado"
                 :error="errors.resultado"
                 placeholder="Los resultados se generarán en segundos.."
               />
             </div>
+
             <div
-              class="flex flex-col gap-4 w-full items-center md:mt-4 md:flex-row">
+              class="flex flex-col gap-4 w-full items-center md:mt-4 md:flex-row"
+            >
+              <LoadingButton @click="generatePrediction">
+                Analizar
+              </LoadingButton>
               <button
                 type="submit"
-                class="h-10 w-72 bg-primary self-center text-white shadow font-bold rounded-lg text-sm hover:bg-primary-light hover:text-primary md:mt-8">
+                class="h-10 w-72 bg-primary self-center text-white shadow font-bold rounded-lg text-sm hover:bg-primary-light hover:text-primary md:mt-8"
+              >
                 Guardar
               </button>
             </div>
